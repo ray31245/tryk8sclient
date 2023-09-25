@@ -21,12 +21,15 @@ func main() {
 	var namespace *string
 	var podName *string
 	var number *int
+	var kubeconfig *string
+
 	namespace = flag.String("namespace", "default", "choose namespace to select")
 	podName = flag.String("podName", "", "choose pod")
 	number = flag.Int("number", 0, "numbers of repeat listen")
+	kubeconfig = flag.String("kubeconfig", filepath.Join(homedir.HomeDir(), ".kube", "config"), "<HomeDir>/kube/config")
 	flag.Parse()
 
-	clientSet, err := util.GetClient(filepath.Join(homedir.HomeDir(), ".kube", "config"))
+	clientSet, err := util.GetClient(*kubeconfig)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -35,7 +38,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	for i := 0; i <= *number; i++ {
+	for i := 1; i <= *number; i++ {
 		go fetchPodLog(clientSet, pod, i)
 	}
 	for {
