@@ -8,7 +8,8 @@ import (
 	"log"
 	"path/filepath"
 	"time"
-	"tryk8sclient/util"
+
+	"github.com/ray31245/tryk8sclient/util"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

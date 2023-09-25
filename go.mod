@@ -1,4 +1,4 @@
-module tryk8sclient
+module github.com/ray31245/tryk8sclient
 
 go 1.21.0
 
