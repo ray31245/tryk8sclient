@@ -33,24 +33,27 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	pod, err := clientSet.CoreV1().Pods(*namespace).Get(context.TODO(), *podName, metav1.GetOptions{})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	pod, err := clientSet.CoreV1().Pods(*namespace).Get(ctx, *podName, metav1.GetOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
 
 	for i := 1; i <= *number; i++ {
-		go fetchPodLog(clientSet, pod, i)
+		go fetchPodLog(ctx, clientSet, pod, i)
 	}
 	for {
 		time.Sleep(time.Second * 10)
 	}
 }
 
-func fetchPodLog(clientSet *kubernetes.Clientset, pod *v1.Pod, number int) {
+func fetchPodLog(ctx context.Context, clientSet *kubernetes.Clientset, pod *v1.Pod, number int) {
 	stream, err := clientSet.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &v1.PodLogOptions{
 		Container: pod.Spec.Containers[0].Name,
 		Follow:    true,
-	}).Stream(context.TODO())
+	}).Stream(ctx)
 	if err != nil {
 		panic(err.Error())
 	}
