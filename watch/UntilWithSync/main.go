@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 	"path/filepath"
-	"time"
+	"sync"
 
 	"github.com/ray31245/tryk8sclient/util"
 	batchv1 "k8s.io/api/batch/v1"
@@ -54,15 +54,15 @@ func main() {
 		}
 	}
 
+	var wg sync.WaitGroup
 	for i := 1; i <= *number; i++ {
-		go watchEvent(ctx, clientSet, obj, i)
+		wg.Add(1)
+		go watchEvent(ctx, &wg, clientSet, obj, i)
 	}
-	for {
-		time.Sleep(time.Second * 10)
-	}
+	wg.Wait()
 }
 
-func watchEvent(ctx context.Context, clientSet kubernetes.Interface, objType runtime.Object, number int) {
+func watchEvent(ctx context.Context, wg *sync.WaitGroup, clientSet kubernetes.Interface, objType runtime.Object, number int) {
 	var name string
 	var listF func(ctx context.Context, opts metav1.ListOptions) (runtime.Object, error)
 	var watchF func(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
@@ -145,6 +145,7 @@ func watchEvent(ctx context.Context, clientSet kubernetes.Interface, objType run
 	if err != nil {
 		panic(err.Error())
 	}
+	wg.Done()
 }
 
 func isWaitingWthErr(container v1.ContainerStatus) bool {
