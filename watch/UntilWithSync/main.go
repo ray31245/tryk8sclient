@@ -140,8 +140,7 @@ func watchEvent(ctx context.Context, wg *sync.WaitGroup, clientSet kubernetes.In
 
 		return false, nil
 	}
-
-	_, err := watchtools.UntilWithSync(ctx, &lw, &batchv1.Job{}, nil, conditionF)
+	_, err := watchtools.UntilWithSync(ctx, &lw, objType, nil, conditionF)
 	if err != nil {
 		panic(err.Error())
 	}
